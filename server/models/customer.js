@@ -8,7 +8,7 @@ const Customer = sequelize.define('customer', {
         allowNull: false,
         primaryKey: true
     },
-    cusName:{
+    customerName:{
         type:Sequelize.STRING,
         allowNull:false
     },
@@ -24,3 +24,5 @@ const Customer = sequelize.define('customer', {
 
     } 
 })
+
+module.exports = {Customer}
