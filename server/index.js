@@ -12,9 +12,9 @@ app.use(express.json());
 
 app.use(treblle());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello World!");
+// });
 
 //Setting up Treblle
 useTreblle(app, {
