@@ -8,7 +8,11 @@ const Customer = sequelize.define('customer', {
         allowNull: false,
         primaryKey: true
     },
-    customerName:{
+    name:{
+        type:Sequelize.STRING,
+        allowNull:false
+    },
+    email:{
         type:Sequelize.STRING,
         allowNull:false
     },
