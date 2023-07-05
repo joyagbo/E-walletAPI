@@ -4,11 +4,13 @@ require("dotenv").config();
 const bodyParser = require("body-parser");
 const app = express();
 const port = 4000;
-const treblle = require('@treblle/express')
+const treblle = require('@treblle/express');
+const { custRoute } = require("./routes/customerRoute");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.json());
+app.use('/', custRoute)
 
 app.use(treblle());
 
