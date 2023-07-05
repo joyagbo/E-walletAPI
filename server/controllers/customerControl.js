@@ -9,8 +9,15 @@ const registerCustomer = async () =>{
         const {name, email, username, password} = req.body
         //ensuring customer enters all required field
         if (!name || !email || !username || !password)
-        return errorResponse(res, 'Enter all the required field')
-        
+        return errorResponse(res, 'Enter all the required field', 400)
+
+        const existingCust = await Customer.findAll({
+            where: {username: username}
+        })
+        //checking for user dublicate
+        if (existingCust)
+        return errorResponse(res, 'Enter all the required field', 409)
+
 
     } catch(error){
 
