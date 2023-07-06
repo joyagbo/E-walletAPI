@@ -1,0 +1,7 @@
+1. run  npm init  command in your terminal to initialize you node project 
+
+2. run npm intall to get all your libraries intall
+
+3. run nodemon index   to start your server 
+
+4. send a request to http://localhost:3000/api/   to get all your routes
