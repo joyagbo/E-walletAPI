@@ -1,6 +1,5 @@
 const { Customer } = require("../models/customer");
-const { errorResponse } = require("../errors/errorResponse");
-const { successResponse } = require("../succes_handler/success");
+const errorResponse  = require("../errors/errorResponse");
 const {
   createToken,
   verifyUser,
@@ -30,7 +29,7 @@ module.exports.post_login = async (req, res) => {
 
   const user = await Customer.findOne({ email });
 
-  const pass = auth.confirmPassword(password, user.password);
+  const pass = confirmPassword(password, user.password);
 
   if (!pass) {
     res.json({
@@ -39,7 +38,7 @@ module.exports.post_login = async (req, res) => {
     });
   }
 
-  const verifyToken = auth.verifyUser(req.headers.cookie);
+  const verifyToken = verifyUser(req.headers.cookie);
 
   if (verifyToken) {
     res.json({
@@ -72,7 +71,7 @@ module.exports.post_register = async (req, res) => {
   try {
     const newUser = await Customer.create({ email: email, password: password });
 
-    const token = auth.createToken(newUser._id);
+    const token = createToken(newUser._id);
 
     res.cookie("jwt", token, {
       maxAge: tokenAge,
@@ -87,7 +86,7 @@ module.exports.post_register = async (req, res) => {
     res.json({
       status: 404,
       message: "couldn't register user",
-      error: handleErrors.errorResponse(err),
+      error: errorResponse.errorMessage(err),
     });
   }
 };
