@@ -1,79 +1,93 @@
-// const { sequelize } = require("../config/db_connection");
 const { Customer } = require("../models/customer");
-const jsonwebtoken = require('jsonwebtoken')
-const bcrypt = require('bcryptjs');
 const { errorResponse } = require("../errors/errorResponse");
 const { successResponse } = require("../succes_handler/success");
-//const saltrounds = bcrypt.genSalt(12)
+const {
+  createToken,
+  verifyUser,
+  confirmPassword,
+} = require("../middleware/auth");
 
-//Customer registration
+const tokenAge = 100 * 60 * 60 * 24; // 24 hour
 
-const registerCustomer = async (req, res) =>{
-    try{
-        const {name, email, username, password} = req.body
-        //ensuring customer enters all required field
-        if (!name || !email || !username || !password)
-        return errorResponse(res, 'Enter all the required field', 400)
+//Customer login
 
-        const existingCust = await Customer.findOne({$or: [{ username }, { email }]})
-        //checking for user dublicate
-        if (existingCust)
-        return errorResponse(res, 'Account already existing', 409)
+module.exports.get_login = async (req, res) => {
+  if (req.headers.cookie) {
+    res.json({
+      status: 200,
+      message: "Login successfully logged in..",
+    });
+  }
 
-        const hashPwd = await bcrypt.hash(password, 12)
-   
-        const newCustomer = {
-            "name": name,
-            "email": email,
-            "username": username,
-            "password": hashPwd
-        }
-        const result = await Customer.create(newCustomer)
-        console.log(result)
-        return successResponse(res, "Your account has been created succesfully",{result}, 201 )
+  res.json({
+    status: 404,
+    message: "Please login in first ",
+  });
+};
 
+module.exports.post_login = async (req, res) => {
+  const { email, password } = req.body;
 
-    } catch(error){
-        console.log(error.message)
-        return errorResponse(res, error.message,false, 500);
-    }
-}
+  const user = await Customer.findOne({ email });
 
+  const pass = auth.confirmPassword(password, user.password);
 
-//Customsr login
+  if (!pass) {
+    res.json({
+      status: 404,
+      message: " Password incorrect, please try again  ",
+    });
+  }
 
-const custLogin = async (req, res) => {
-    
-    try {
-        const {username, password} = req.body;
+  const verifyToken = auth.verifyUser(req.headers.cookie);
 
-        if (!username || !password)
-            return errorResponse(res,'Username or password required' , 400)
-            // throw new Error('Username or password required')   
-        
-    const findUser = await Customer.findOne({username: username});
+  if (verifyToken) {
+    res.json({
+      status: 200,
+      message: "User successfully logged in...",
+    });
+  }
+  res.json({
+    status: 404,
+    message: "please register first ",
+  });
+};
 
-    if (!findUser) {
-        //throw new Error('User not found')
-        return errorResponse(res, 'User not found', 404)
-    } else {
-        const verifyPassword = await bcrypt.compare(password, findUser.password )
+module.exports.get_logout = async (req, res) => {
+  const cookie = req.headers.cookie;
+  if (cookie) {
+    res.clearCookie(cookie);
+    res.json({
+      status: 200,
+      message: "User logged out successfully",
+      cookie: " cookie destroyed",
+    });
+  }
+  console.log("User logged out successfully");
+};
 
-        if (!verifyPassword){
-           return errorResponse(res,'Invalid password', 401)
-        } else {
-            const token = jsonwebtoken.sign({username: findUser.username, id: findUser._id}, process.env.SECRET_JWT, { expiresIn: '30mins' })
-            //console.log(process.env.SECRET_JWT)
-            return successResponse(res, "logged in successfully",{token}, 200,)
+module.exports.post_register = async (req, res) => {
+  const { email, password } = req.body;
 
-        }
-    }
-    } catch (error){
-      return  errorResponse(res, error.message,false, 500)
-        
-    }
-    
-}
+  try {
+    const newUser = await Customer.create({ email: email, password: password });
 
+    const token = auth.createToken(newUser._id);
 
-module.exports = { registerCustomer, custLogin}
+    res.cookie("jwt", token, {
+      maxAge: tokenAge,
+    });
+
+    res.json({
+      status: 201,
+      message: "Registered, please login ",
+      // error: handleErrors.errorMessage()
+    });
+  } catch (err) {
+    res.json({
+      status: 404,
+      message: "couldn't register user",
+      error: handleErrors.errorResponse(err),
+    });
+  }
+};

@@ -1,4 +1,3 @@
-//const Sequelize = require('sequelize');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -19,9 +18,3 @@ const dbConnection = () => {
 }
 
 module.exports = { dbConnection}
-// const sequelize = new Sequelize(process.env.DATABASE_NAME,process.env.DATABASE_USER, process.env.DATABASE_PASSWORD,
-// {dialect:'mysql', host:'localhost'})
-// console.log(process.env.DATABASE_NAME)
-
-
-//module.exports = {sequelize}

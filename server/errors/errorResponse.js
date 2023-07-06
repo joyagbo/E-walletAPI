@@ -1,9 +1,17 @@
-const errorResponse = (res, error, status = false, code = 400) => {
-  let sendData = {
-    status,
-    error,
+const errorResponse = (err) => {
+  let allErrorsMessages = err.message.split(":");
+
+  if (allErrorsMessages.includes("E11000 duplicate key error collection")) {
+    return "User already exists...";
+  }
+  let message = {
+    Email: allErrorsMessages[2],
+    Password: allErrorsMessages[3],
   };
-  return res.status(code).json(sendData);
+
+  console.log(allErrorsMessages);
+
+  return message;
 };
 
 module.exports = { errorResponse };

@@ -1,20 +1,22 @@
-const { Sequelize } = require("sequelize");
-const { sequelize } = require("../config/db_connection");
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
-const Transaction = sequelize.define('transaction', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
+const transactionSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv4,
+    unique: true,
   },
   amount: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
+    type: Number,
+    required: true,
   },
   type: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
   },
 });
 
-module.exports = {Transaction};
+const Transaction = mongoose.model('Transaction', transactionSchema);
+
+module.exports = Transaction;
