@@ -1,7 +1,8 @@
 // const { sequelize } = require("../config/db_connection");
-const { errorResponse } = require("../errors/errorResponse");
 const { Customer } = require("../models/customer");
+const jsonwebtoken = require('jsonwebtoken')
 const bcrypt = require('bcryptjs');
+const { errorResponse } = require("../errors/errorResponse");
 const { successResponse } = require("../succes_handler/success");
 //const saltrounds = bcrypt.genSalt(12)
 
@@ -14,7 +15,7 @@ const registerCustomer = async (req, res) =>{
         if (!name || !email || !username || !password)
         return errorResponse(res, 'Enter all the required field', 400)
 
-        const existingCust = await Customer.findOne({where:{username: username}})
+        const existingCust = await Customer.findOne({$or: [{ username }, { email }]})
         //checking for user dublicate
         if (existingCust)
         return errorResponse(res, 'Account already existing', 409)
@@ -39,5 +40,40 @@ const registerCustomer = async (req, res) =>{
 }
 
 
+//Customsr login
 
-module.exports = { registerCustomer}
+const custLogin = async (req, res) => {
+    
+    try {
+        const {username, password} = req.body;
+
+        if (!username || !password)
+            return errorResponse(res,'Username or password required' , 400)
+            // throw new Error('Username or password required')   
+        
+    const findUser = await Customer.findOne({username: username});
+
+    if (!findUser) {
+        //throw new Error('User not found')
+        return errorResponse(res, 'User not found', 404)
+    } else {
+        const verifyPassword = await bcrypt.compare(password, findUser.password )
+
+        if (!verifyPassword){
+           return errorResponse(res,'Invalid password', 401)
+        } else {
+            const token = jsonwebtoken.sign({username: findUser.username, id: findUser._id}, process.env.SECRET_JWT, { expiresIn: '30mins' })
+            //console.log(process.env.SECRET_JWT)
+            return successResponse(res, "logged in successfully",{token}, 200,)
+
+        }
+    }
+    } catch (error){
+      return  errorResponse(res, error.message,false, 500)
+        
+    }
+    
+}
+
+
+module.exports = { registerCustomer, custLogin}
