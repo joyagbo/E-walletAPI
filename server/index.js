@@ -2,19 +2,18 @@ const express = require("express");
 const { useTreblle } = require("treblle");
 require("dotenv").config();
 const bodyParser = require("body-parser");
-const coockieParser = require("cookie-parser");
+const cookieParser = require("cookie-parser");
 const app = express();
 const { dbConnection } = require("./config/db_connection");
-const { route } = require("./routes/customerRoute");
+const customerRoute = require("./routes/customerRoute");
 app.use(bodyParser.urlencoded({ extended: false }));
 
-route;
 //middleware
 app.use(express.json());
-app.use(coockieParser());
+app.use(cookieParser());
 
 // setting all routes
-app.use("/api", route);
+app.use("/api", customerRoute);
 
 //Setting up Treblle
 useTreblle(app, {

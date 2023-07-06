@@ -6,11 +6,11 @@ const {
   post_register,
 } = require("../controllers/customerControl");
 
-const route = Router();
+const customerRoute = Router();
 
-route.get("/login", get_login);
-route.post("/login", post_login);
-route.get("/logout", get_logout);
-route.post("/register", post_register);
+customerRoute.get("/login", get_login);
+customerRoute.post("/login", post_login);
+customerRoute.get("/logout", get_logout);
+customerRoute.post("/register", post_register);
 
-module.exports = route;
+module.exports = customerRoute;
